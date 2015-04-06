@@ -1,0 +1,501 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Text Processing with Finite State Transducers in Unitex</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=792, user-scalable=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<link rel="stylesheet" href="shower/themes/ribbon/styles/screen.css">
+	<link rel="stylesheet" href="base.css">
+</head>
+<body class="list">
+	<header class="caption">
+		<h1>Text Processing with Finite State Transducers in Unitex</h1>
+		<p><a href="http://about.me/alukanin">Artem Lukanin</a></p>
+	</header>
+	<section class="slide cover" id="Cover"><div>
+		<style>
+			#Cover {
+				background: white;
+			}
+			.slide.cover .conference__logo {
+				float: left;
+				margin-right: 40px;
+				position: relative;
+			}
+			.conference {
+				margin: -90px -50px 70px -50px; 
+			}
+			.conference__details {
+				font-weight: bold;
+				line-height: 1.2em;
+				padding-top: 126px;
+			}
+			.conference__details p {
+				margin: 0;
+			}
+			.conference__title {
+				color: #E32B56;
+			}
+			.conference__date {
+				color: #464646;
+			}
+			#Cover h2 {
+				text-align: center;
+			}
+			.slide .author {
+				margin: 0;
+				text-align: center;
+			}
+		</style>
+		<div class="conference clearfix">
+			<img src="pictures/logo-en_1.png" class="conference__logo"/>
+			<div class="conference__details">
+			<p class="conference__title">ANALYSIS OF IMAGES, SOCIAL NETWORKS, AND TEXTS</p>
+			<p class="conference__date">April, 9-11th, 2015, Yekaterinburg</p>
+			</div>
+		</div>
+		<h2>Text Processing with Finite State Transducers in Unitex</h2>
+		<p class="author"><a href="http://about.me/alukanin">Artem Lukanin</a></p>
+	</div></section>
+	<section class="slide"><div>
+		<h2>What is Unitex?</h2>
+		<ul>
+			<li>An open-source corpus processor, based on automata-oriented technology</li>
+			<li>mainly developed by Sébastien Paumier at the <a href="http://www-igm.univ-mlv.fr/">Institut Gaspard-Monge (IGM)</a>, University of Paris-Est Marne-la-Vallée (France)</li>
+			<li class="next">It works on <b>Windows</b>, <b>Linux</b>, <b>Mac OS</b> and other systems</li>
+			<li class="next">It has lexical resources for French, English, Greek, Portuguese, <b>Russian</b>, Thai, Korean, Italian, Spanish, Norwegian, Arabic, German and more</li>
+			<li class="next"><a href="http://www-igm.univ-mlv.fr/~unitex/">http://www-igm.univ-mlv.fr/~unitex/</a></li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>What is corpus?</h2>
+		<figure>
+			<blockquote>
+				<p>A corpus is a collection of pieces of language text in electronic form, selected according to external criteria to represent, as far as possible, a language or language variety as a source of data for linguistic research.</p>
+			</blockquote>
+			<figcaption>Sinclair 2005</figcaption>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<h2>What is Finite State Transducer (FST)?</h2>
+		<figure>
+			<blockquote>
+				<p><b>FST</b>, is a type of finite automaton which maps between two sets of symbols. 
+				We can visualize an FST as a two-tape automaton that recognizes or generates pairs of
+				strings. Intuitively, we can do this by labeling each arc in the finite-state machine with
+				two symbol strings, one from each tape.</p>
+			</blockquote>
+			<figcaption>Jurafsky 2000</figcaption>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Simple sentence splitting FST</h2>
+		<figure>
+			<img src="pictures/sentence-FST.png"/>
+		</figure>
+		<pre>
+		<code>
+... в четвертичном периоде. Достигали высоты ...
+... в четвертичном периоде.<samp>{S}</samp> Достигали высоты ...
+		</code>
+		</pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Get your corpus from a text file in Unitex</h2>
+		<ol class="start">
+			<li>Run Unitex
+				<ul>
+					<li>If you are working on Windows, the program will ask you to choose a personal working directory, which you can change later in <mark>Info>Preferences...>Directories</mark>.</li>
+				</ul>
+			</li>
+			<li class="next">Select <b>Russian</b> as your working language
+				<ul>
+					<li>For each language that you will be using, for the first time the program will copy the root directory of that language to your personal directory, except the dictionaries.</li>
+				</ul>
+			</li>
+		</ol>
+	</div></section>
+	<section class="slide" id="GetCorpus2"><div>
+		<style>
+			#GetCorpus2 ol {
+				counter-reset: list 2;
+			}
+		</style>
+		<h2>Get your corpus from a text file in Unitex</h2>
+		<ol start="3">
+			<li>Open <code>corpus-ru-dbpedia-short-dea-1000.csv</code> from the <b>Corpus</b> subfolder: <mark>Text > Open...</mark></li>
+			<li class="next">Preprocess the text
+				<ul>
+					<li>Apply <code>Sentence.grf</code> in <b>MERGE</b> mode</li>
+					<li>Apply <code>Replace.grf</code> in <b>REPLACE</b> mode</li>
+					<li>Tokenize the text</li>
+					<li>Apply all default dictionaries</li>
+					<li>Analyze unknown words as free compound words</li>
+				</ul>
+			</li>
+		</ol>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Preprocessing</h2>
+		<ul>
+			<li><code>Sentence.grf</code> splits the text into sentences, adding <code>{S}</code> tag before the next sentence (language dependent)</li>
+			<li class="next"><code>Replace.grf</code> removes <code>¬</code> (soft hyphen) and converts no-break spaces to spaces</li>
+			<li class="next">The standard separators (the space, the tab and the newline characters) are normalized</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Tokenization</h2>
+		<ul>
+			<li>is language (alphabet) dependent</li>
+			<li class="next">Newlines in a text are replaced by spaces</li>
+			<li class="next">A token can be:
+				<ul>
+					<li class="next">the sentence delimiter <code>{S}</code></li>
+					<li class="next">the stop marker <code>{STOP}</code> to delimit texts</li>
+					<li class="next">a lexical tag, e.g. <code>{ЮУрГУ,.N+ORG+gen(M)}</code></li>
+					<li class="next">a contiguous sequence of letters (from <code>alphabet.txt</code>)</li>
+					<li class="next">one (and only one) non-letter character, e.g. a digit</li>
+				</ul>
+			</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<style>
+			.slide .splitlist {
+				margin: 0;
+			}
+			.slide .lexform {
+				color: blue;
+			}
+			.slide .lemma {
+				color: red;
+			}
+			.slide .gramsem {
+				color: green;
+			}
+			.slide .inflect {
+				color: brown;
+			}
+		</style>
+		<h2>Applying dictionaries</h2>
+		<ul class="splitlist">
+			<li>consists of building the subset of dictionaries consisting only of forms that are present in the text</li>
+			<li class="next">The corpus becomes "tagged", i.e. every token is assigned all possible grammatical forms</li>
+			<li class="next">e.g. <code>семью</code> assigned these lexical tags:</li>
+		</ul>
+		<pre class="next"><code>	<span class="lexform">семью</span>,<span class="lemma">семья</span>.<span class="gramsem">N+anim(j)+gen(F)</span>:<span class="inflect">aeF</span>
+	<span class="lexform">семью</span>,<span class="gramsem">.ADV</span>
+	<span class="lexform">семью</span>,<span class="lemma">семь</span>.<span class="gramsem">NUM+plur</span>:<span class="inflect">t</span></code></pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Hyponyms and hypernyms</h2>
+		<figure>
+			<blockquote><p>Unlike synonymy and antonymy, which are lexical relations between word forms,
+<b>hyponymy/hypernymy</b> is a semantic relation between word meanings: e.g., <mark>{maple}</mark> is a
+hyponym of <mark>{tree}</mark>, and <mark>{tree}</mark> is a hyponym of <mark>{plant}</mark>. Much attention has been
+devoted to hyponymy/hypernymy (variously called <b>subordination/superordination</b>,
+<b>subset/superset</b>, or the <b>ISA relation</b>)... </p></blockquote>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Hyponyms and hypernyms</h2>
+		<figure>
+			<blockquote><p>A concept represented by the synset {x, x′,...} is
+said to be a <b>hyponym</b> of the concept represented by the synset {y, y′,...} if native
+speakers of English accept sentences constructed from such frames as <b>An x is a (kind of)
+y</b>. The relation can be represented by including in {x, x′,...} a pointer to its
+superordinate, and including in {y, y′,...} pointers to its hyponyms.</p></blockquote>
+			<figcaption>Miller 1993</figcaption>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Hyponym and hypernym mining from Russian texts</h2>
+		<pre><code><mark>Мамонты</mark> — вымерший род <mark class="important">млекопитающих</mark> из семейства 
+слоновых, живший в четвертичном периоде.{S} Достигали 
+высоты 5,5 метров и массы тела 10—12 тонн.{S}
+Таким образом, мамонты были в два раза тяжелее самых 
+крупных современных наземных <mark class="important">млекопитающих</mark> — 
+африканских <mark>слонов</mark>.</code></pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Indicators</h2>
+		<pre><code><mark>Мамонты</mark> — вымерший <samp>род</samp> <mark class="important">млекопитающих</mark> из семейства 
+слоновых, живший в четвертичном периоде.{S}</code></pre>
+		<ol class="next">
+			<li><mark>Text > Locate pattern...</mark></li>
+			<li>Type <code>род</code> into <b>Regular expression</b></li>
+			<li>Select <b>Index all utterances in text</b> in <b>Search limitation</b></li>
+			<li>Click <b>Search</b></li>
+		</ol>
+	</div></section>
+	<section class="slide" id="Concordance"><div>
+		<h2>Concordance</h2>
+		<figure class="fragment">
+			<img src="pictures/exactmatch.png"/>
+		</figure>
+		<ul>
+			<li class="next">hyponyms and hypernyms are nouns</li>
+			<li class="next"><code>вымерший</code> (participle) and <code>широколиственных</code> (adjective) can be omitted</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Patterns in Unitex</h2>
+		<ol>
+			<li><mark>Text > Locate pattern...</mark></li>
+			<li>Regular expression <code>&lt;N&gt; — &lt;V:S&gt;* род (&lt;A&gt;+&lt;!DIC&gt;)* &lt;N&gt;</code></li>
+			<li>Click <b>Search</b></li>
+		</ol>
+		<figure class="next">
+			<figcaption>2 matches</figcaption>
+			<pre>
+				<code><mark>Мамонты — вымерший род млекопитающих</mark> из семейства слоновых</code>
+				<code><mark>Бук — род широколиственных деревьев</mark> семейства Буковые</code>
+			</pre>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<style>
+			.slide samp.entry {
+				background: none;
+				padding: 0;
+			}
+		</style>
+		<h2>Lexical masks</h2>
+		<ul>
+			<li><code>&lt;род&gt;</code>: matches all the entries that have <samp class="entry lemma">род</samp> as canonical form</li>
+			<li class="next"><code>&lt;стать.V&gt;</code>: matches all entries having <samp class="entry lemma">стать</samp> as canonical form and the grammatical code <samp class="entry gramsem">V</samp></li>
+			<li class="next"><code>&lt;V&gt;</code>: matches all entries having the grammatical code <samp class="entry gramsem">V</samp></li>
+			<li class="next"><code>{стану,стать.V}</code> or <code>&lt;стану,стать.V&gt;</code>: matches all the entries having <samp class="entry lexform">стану</samp> as inflected form, <samp class="entry lemma">стать</samp>
+as canonical form and the grammatical code <samp class="entry gramsem">V</samp></li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Lexical masks. Special symbols</h2>
+		<ul>
+			<li><code>&lt;E&gt;</code>: the empty word or epsilon. Matches the empty string</li>
+			<li class="next"><code>&lt;TOKEN&gt;</code>: matches any token, except the space; used by default for morphological filters</li>
+			<li class="next"><code>&lt;MOT&gt;</code>: matches any token that consists of letters</li>
+			<li class="next"><code>&lt;MIN&gt;</code>: matches any lower-case token</li>
+			<li class="next"><code>&lt;MAJ&gt;</code>: matches any lower-case token</li>
+			<li class="next"><code>&lt;MAJ&gt;</code>: matches any upper-case token</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Lexical masks. Special symbols</h2>
+		<ul>
+			<li><code>&lt;PRE&gt;</code>: matches any token that starts with a capital letter</li>
+			<li class="next"><code>&lt;DIC&gt;</code>: matches any word that is present in the dictionaries of the text</li>
+			<li class="next"><code>&lt;SDIC&gt;</code>: matches any simple word in the text dictionaries</li>
+			<li class="next"><code>&lt;CDIC&gt;</code>: matches any composed word in the dictionaries of the text</li>
+			<li class="next"><code>&lt;TDIC&gt;</code>: matches any tagged token like <code>{XXX,XXX.XXX}</code></li>
+			<li class="next"><code>&lt;NB&gt;</code>: matches any contiguous sequence of digit (1234 is matched but not 1 234)</li>
+			<li class="next"><code>&lt;#&gt;</code>: prohibits the presence of space</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Graphs in Unitex</h2>
+		<ul>
+			<li>can match text (Finite State Automata)</li>
+			<li class="next">can produce new output text (Finite State Transducers)
+				<ul>
+					<li class="next">in <b>MERGE</b> mode combine the matched input text and the output text (useful fot tagging)</li>
+					<li class="next">in <b>REPLACE</b> mode convert the matched input text into the output text</li>
+				</ul>
+			</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<ol class="splitlist">
+			<li><mark>FSGraph > New</mark></li>
+			<li>Click on the <em>initial state</em> (arrow), click inside the empty place while holding <strong>Ctrl</strong> to create a new box, connected to the <em>initial state</em>, type <code>&lt;N&gt;</code>, press <strong>Enter</strong></li>
+		</ol>
+		<figure>
+			<img src="pictures/FST1.png"/>
+		</figure>
+	</div></section>
+	<section class="slide" id="MatchGraph2"><div>
+		<style>
+			#MatchGraph2 ol {
+				counter-reset: list 2;
+			}
+		</style>
+		<h2>A graph for matching text</h2>
+		<ol start="3">
+			<li>Create a <code>—</code> box, connected to the <code>&lt;N&gt;</code> box</li>
+			<li class="next">Create a <code>род</code> box, connected to the <code>—</code> box</li>
+			<li class="next">Create a <code>&lt;N&gt;</code> box, connected to the <code>род</code> box</li>
+			<li class="next">Click on the second <code>&lt;N&gt;</code> box, click on the <em>final state</em> (a circle with a square inside) to connect these 2 boxes</li>
+			<li class="next">Create a <code>&lt;V:S&gt;</code> box between the <code>—</code> and <code>род</code> boxes</li>
+			<li class="next">Create a <code>&lt;A&gt;+&lt;!DIC&gt;</code> box between the <code>род</code> and <code>&lt;N&gt;</code> boxes</li>
+			<li class="next">Save the graph as <code>Graphs/match-hyponyms.grf</code>: <mark>FSGraph > Save</mark></li>
+		</ol>
+	</div></section>
+	<section class="slide" id="MatchHyponyms"><div>
+		<h2>A graph for matching text</h2>
+		<figure>
+			<img src="pictures/match-hyponyms.png"/>
+			<figcaption><mark>Text > Locate Pattern...</mark>, <strong>Locate pattern in the form of</strong>: <strong>Graph</strong>, Set <code>match-hyponyms.grf</code>, <strong>Search</strong></figcaption>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Transducers in Unitex</h2>
+		<ol>
+			<li>Click on the first <code>&lt;N&gt;</code> box (hyponym) and change it to <code>&lt;N&gt;/{[</code> to add <code>{[</code> before the matched noun, when the graph is applied in the <strong>MERGE</strong> mode</li>
+			<li class="next">Click on the <code>&lt;N&gt;/{[</code> and click on the <code>—</code> box to disconnect these boxes</li>
+			<li class="next">Create a <code>&lt;E&gt;/]=HYPONYM}</code> box between the <code>&lt;N&gt;/{[</code> and <code>—</code> boxes. It will add <code>]=HYPONYM}</code> after the matched noun</li>
+			<li class="next">Modify the second <code>&lt;N&gt;</code> box for adding a <code>HYPERNYM</code> tag to it</li>
+		</ol>
+	</div></section>
+	<section class="slide" id="TagHyponyms"><div>
+		<style>
+			#TagHyponyms ol {
+				counter-reset: list 4;
+			}
+		</style>
+		<h2>Transducers in Unitex</h2>
+		<ol start="5">
+			<li>Save the graph as <code>tag-hyponyms.grf</code></li>
+		</ol>
+		<figure>
+			<img src="pictures/tag-hyponyms.png"/>
+		</figure>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Tagging hyponyms and hypernyms</h2>
+		<ol>
+			<li><mark>Text > Locate pattern...</mark></li>
+			<li class="next">Set <code>tag-hyponyms.grf</code></li>
+			<li class="next">Select <b>Merge with input text</b> in <b>Grammar outputs</b></li>
+			<li class="next">Click <b>Search</b></li>
+			<li class="next">Build concordance
+				<ul>
+					<li>The matched and tagged texts are stored in the <code>concord.ind</code> file in the corpus folder<br><code>corpus-ru-dbpedia-short-dea-1000_snt</code></li>
+				</ul>
+			</li>
+		</ol>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Tagging hyponyms and hypernyms</h2>
+		<figure>
+			<pre>
+				<code><mark>{[Мамонты]=HYPONYM} — вымерший род <br>{[млекопитающих]=HYPERNYM}</mark> из семейства слоновых</code>
+				<code><mark>{[Бук]=HYPONYM} — род широколиственных <br>{[деревьев]=HYPERNYM}</mark> семейства Буковые</code>
+			</pre>
+		</figure>
+		<ul>
+			<li class="next">We can then use some script to extract tagged hyponyms and hypernyms...</li>
+			<li class="next">or mine them right in Unitex in the <strong>REPLACE</strong> mode</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2>Mining hyponyms and hypernyms</h2>
+		<ol>
+			<li>Open <code>match-hyponyms.grf</code>: <mark>FSGraph > Open...</mark></li>
+			<li class="next">Click on the first <code>&lt;N&gt;</code> box, right-click on it and select <br><mark>Surround with > Morphological mode</mark></li>
+			<li class="next">Click on the first <code>&lt;N&gt;</code> box and change it to <code>&lt;N&gt;/$hyponym$</code> to store the matched noun with all morphological information in the <code>$hyponym$</code> variable</li>
+		</ol>
+	</div></section>
+	<section class="slide" id="MiningHyponyms2"><div>
+		<style>
+			#MiningHyponyms2 ol {
+				counter-reset: list 3;
+			}
+		</style>
+		<h2>Mining hyponyms and hypernyms</h2>
+		<ol start="4">
+			<li>Modify the second <code>&lt;N&gt;</code> box to store the matched noun in variable <code>$hypernym$</code> in the morphological mode</li>
+			<li class="next">Add <code>&lt;E&gt;/$hypernym.LEMMA$: $hyponym.LEMMA$</code> before the <em>final state</em></li>
+			<li class="next">Save this graph as <code>mine-hyponyms.grf</code></li>
+		</ol>
+	</div></section>
+	<section class="slide" id="MiningHyponyms3"><div>
+		<h2>Mining hyponyms and hypernyms</h2>
+		<figure>
+			<img src="pictures/mine-hyponyms.png"/>
+		</figure>
+	</div></section>
+	<section class="slide" id="MiningHyponyms4"><div>
+		<style>
+			#MiningHyponyms4 figure {
+				position: relative;
+			}
+			#MiningHyponyms4 figcaption {
+				display: block;
+				left: 278px;
+				position: absolute;
+				top: 104px;
+			}
+			#MiningHyponyms4 figcaption:before {
+				content: "}";
+				display: block;
+				float: left;
+				font-size: 155px;
+				margin-top: -148px;
+				margin-right: 20px;			
+			}
+		</style>
+		<h2>Mining hyponyms and hypernyms</h2>
+		<ol>
+			<li>Set this graph in <mark>Text > Locate pattern...</mark></li>
+			<li class="next">Select <b>Replace recognized sequences</b> in <b>Grammar outputs</b></li>
+			<li class="next">Click <strong>Search</strong></li>
+		</ol>
+		<figure class="next">
+			<pre>
+				<code>млекопитающее: мамонт</code>
+				<code>дерево: бук</code>
+				<code><mark class="important">дерево: бука</mark></code>
+				<code><mark class="important">дерево: Бук</mark></code>
+			</pre>
+			<figcaption>ambiguous outputs</figcaption>
+		</figure>
+	</div></section>
+	
+	
+	<section class="slide" id="Refs1"><div>
+		<h2>References</h2>
+		<ol>
+			<li>Jurafsky, D., & James, H. (2000). Speech and language processing an introduction to natural language processing, computational linguistics, and speech.</li>
+			<li>Miller, G. A., Beckwith, R., Fellbaum, C., Gross, D., & Miller, K. J. (1990). Introduction to wordnet: An on-line lexical database*. International journal of lexicography, 3(4), 235-244.</li>
+		</ul>
+	</div></section>
+	<section class="slide" id="Refs2"><div>
+		<style>
+			#Refs2 ol {
+				counter-reset: list 2;
+			}
+		</style>
+		<h2>References</h2>
+		<ol>
+			<li>Paumier, S. (2015). Unitex 3.1.beta User Manual. Université Paris-Est Marne-la-Vallée. January 15, 2015, <br><a href="http://igm.univ-mlv.fr/~unitex/UnitexManual3.1.pdf">http://igm.univ-mlv.fr/~unitex/UnitexManual3.1.pdf</a></li>
+			<li>Sinclair, J. (2005). "Corpus and Text - Basic Principles" in Developing Linguistic Corpora: a Guide to Good Practice, ed. M. Wynne. Oxford: Oxbow Books: 1-16. Available online from <br><a href="http://ahds.ac.uk/linguistic-corpora/">http://ahds.ac.uk/linguistic-corpora/</a> [Accessed 2015-04-01].</li>
+		</ul>
+	</div></section>
+	<section class="slide" id="UnitexProjects"><div>
+		<h2>Text Processing in Unitex</h2>
+		<ul>
+			<li><strong>PatternSim</strong> (<a href="https://github.com/cental/PatternSim">github.com/cental/PatternSim</a>) — a tool for calculation semantic similarity between words from a text corpus based on lexico-syntactic patterns</li>
+			<li><strong>Normatex</strong> (<a href="https://github.com/avlukanin/normatex">github.com/avlukanin/normatex</a>) — Russian text normalization for speech synthesis, machine translation and other natural language processing tasks</li>
+			<li><strong>Unitext Tutorial</strong> (<a href="https://github.com/avlukanin/normatex">github.com/avlukanin/unitextutorial</a>) — the slides and source files used in this tutorial</li>
+		</ul>
+	</div></section>
+	<section class="slide" id="ThankYou"><div>
+		<h2>Text Processing with Finite State Transducers in Unitex</h2>
+		<p>Artem Lukanin</p>
+		<ul>
+			<li><a href="http://about.me/alukanin">about.me/alukanin</a></li>
+			<li><a href="http://twitter.com/avlukanin">@avlukanin</a></li>
+			<li><a href="mailto:artyom.lukanin@gmail.com">artyom.lukanin@gmail.com</a></li>
+		</ul>
+		<p>Slides: <a href="http://artyom.ice-lc.com/slides/unitextutorial/">artyom.ice-lc.com/slides/unitextutorial</a></p>
+	</div></section>
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<p class="badge"><a href="https://github.com/shower/shower">Powered by Shower</a></p>
+	<script src="shower/shower.min.js"></script>
+</body>
+</html>

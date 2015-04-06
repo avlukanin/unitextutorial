@@ -1,0 +1,6 @@
+#Unitex configuration file
+#Mon Apr 06 18:06:45 UZT 2015
+ICON\ BAR\ POSITION=North
+MAX\ TEXT\ FILE\ SIZE=2097152
+MORPHOLOGICAL\ DICTIONARY=C\:\\dev\\Unitex3.0\\Russian\\Dela\\CISLEXru_igrok.bin
+LOGGING\ DIR=C\:\\dev\\Unitex3.0\\App

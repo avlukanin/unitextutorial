@@ -1,0 +1,26 @@
+@media screen {
+	.full .slide .next,
+	.full .slide .next.active .next{
+		opacity: 0.1;
+		visibility: visible;
+	}
+	.full .slide .next .next,
+	.full .slide .next.active,
+	.full .slide .next.active .next.active {
+		opacity: 1;
+	}
+}
+.clearfix:after {
+  content:"";
+  display:table;
+  clear:both;
+}
+figure img {
+	max-width: 100%;
+}
+figure.fragment {
+	overflow: hidden;
+}
+figure.fragment img {
+	max-width: initial;
+}
