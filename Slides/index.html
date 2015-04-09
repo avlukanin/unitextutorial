@@ -452,6 +452,42 @@ as canonical form and the grammatical code <samp class="entry gramsem">V</samp><
 			<figcaption>ambiguous outputs</figcaption>
 		</figure>
 	</div></section>
+	<section class="slide" id="MiningHyponyms5"><div>
+		<style>
+			#MiningHyponyms5 ol.continue {
+				counter-reset: list 1;
+			}
+			#MiningHyponyms5 pre {
+				margin: 5px 0;
+			}
+		</style>
+		<h2>Mining hyponyms and hypernyms</h2>
+		<ol>
+			<li>Why so many <mark>Бук</mark> outputs? Let's see in the dictionary: <mark>DELA > Lookup...</mark>, select <code>CISLEXru_igrok.bin</code> and enter this word</li>
+		</ol>
+		<pre class="next"><code><span class="lexform">Бук</span>,.<span class="gramsem">N+FAMN+PN+anim(o)+gen(M)</span>:<span class="inflect">neM</span>
+<span class="lexform">Бук</span>,.<span class="gramsem">N+FAMN+PN+anim(o)+gen(F)</span>:<span class="inflect">neF</span>:<span class="inflect">geF</span>:<span class="inflect">deF</span>:<span class="inflect">aeF</span>:<span class="inflect">teF</span>:<span class="inflect">qeF</span>:<span class="inflect">nm</span>:<span class="inflect">gm</span>:<span class="inflect">dm</span>:<span class="inflect">aom</span>:<span class="inflect">tm</span>:<span class="inflect">qm</span>
+<span class="lexform">бук</span>,<span class="lemma">бука</span>.<span class="gramsem">N+anim(o)+gen(F)+gen(M)</span>:<span class="inflect">gm</span>:<span class="inflect">aom</span>
+<span class="lexform">бук</span>,.<span class="gramsem">N+anim(j)+gen(M)</span>:<span class="inflect">neM</span>:<span class="inflect">ajeM</span></code></pre>
+	</div></section>
+	<section class="slide" id="MiningHyponyms6"><div>
+		<style>
+			#MiningHyponyms6 ol {
+				counter-reset: list 1;
+			}
+		</style>
+		<h2>Mining hyponyms and hypernyms</h2>
+		<ol start="2">
+			<li>Let's modify <code>mine-hyponyms.grf</code> to remove ambiguous outputs: change the first <code>&lt;N&gt;</code> box to <code>&lt;N~PN:n&gt;</code></li>
+		</ol>
+		<figure class="next">
+			<figcaption>2 outputs</figcaption>
+			<pre>
+				<code>млекопитающее: мамонт</code>
+				<code>дерево: бук</code>
+			</pre>
+		</figure>
+	</div></section>
 	
 	
 	<section class="slide" id="Refs1"><div>
